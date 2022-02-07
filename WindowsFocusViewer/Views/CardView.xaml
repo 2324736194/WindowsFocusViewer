@@ -1,0 +1,156 @@
+﻿<UserControl x:Class="WindowsFocusViewer.Views.CardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WindowsFocusViewer.Views"
+             xmlns:ms="clr-namespace:System;assembly=mscorlib"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d"
+             d:DesignHeight="100" d:DesignWidth="100">
+    <UserControl.Resources>
+        <KeyTime x:Key="KeyTime.MouseOver">00:00:00.3</KeyTime>
+        <ms:Double x:Key="ScaleSize">1.2</ms:Double>
+    </UserControl.Resources>
+    <UserControl.Template>
+        <ControlTemplate TargetType="{x:Type UserControl}">
+            <SimplePanel 
+                x:Name="MainPanel" Height="{Binding Path=CardHeight}" Margin="5" >
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="Loaded">
+                        <b:InvokeCommandAction
+                            Command="{Binding Path=LoadedCommand}"></b:InvokeCommandAction>
+                    </b:EventTrigger>
+                    <b:EventTrigger
+                        SourceObject="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                        EventName="{Binding Source={x:Static UserControl.MouseDoubleClickEvent},Path=Name}">
+                        <b:InvokeCommandAction 
+                            Command="{Binding Path=ShowCommand}"></b:InvokeCommandAction>
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
+                <Border ClipToBounds="True" Margin="2">
+                    <Image
+                        x:Name="CardImage"
+                        Source="{Binding Path=Source}"
+                        Stretch="Uniform" RenderTransformOrigin="0.5,0.5">
+                        <Image.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </Image.RenderTransform>
+                    </Image>
+                </Border>
+                <Border BorderThickness="2" BorderBrush="White" CornerRadius="5"/>
+                <StackPanel 
+                    x:Name="ButtonPanel" HorizontalAlignment="Right" Visibility="Collapsed"
+                    Margin="10" Orientation="Horizontal" VerticalAlignment="Top">
+                    <Button 
+                        ToolTip="保存" Padding="5" Style="{StaticResource Controls.Button.Semicircle.Theme}">
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="Click">
+                                <b:FolderBrowserAction
+                                    x:Name="FolderBrowserAction1"
+                                    CommandParameter="{Binding ElementName=FolderBrowserAction1,Path=SelectedPath}"
+                                    Command="{Binding Path=DownloadCommand}"></b:FolderBrowserAction>
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                        <Border Background="White" Height="16" Width="16">
+                            <Border.OpacityMask>
+                                <ImageBrush ImageSource="pack://application:,,,/Resources/Icons/Save.png"></ImageBrush>
+                            </Border.OpacityMask>
+                        </Border>
+                    </Button>
+                    <ToggleButton 
+                        ToolTip="收藏"
+                        AttachedCornerRadius.Value="{Binding RelativeSource={RelativeSource Self},Path=ActualHeight,Converter={StaticResource Basics.Converters.Percentage},ConverterParameter=0.5}"
+                        IsChecked="{Binding Path=IsCollected}" Padding="5" Margin="10,0,0,0">
+                        <ToggleButton.Template>
+                            <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                <SimplePanel x:Name="MainPanel">
+                                    <Border 
+                                        x:Name="BackgroundBorder" 
+                                        Background="{TemplateBinding Background}" 
+                                        CornerRadius="{TemplateBinding AttachedCornerRadius.Value}" 
+                                        BorderBrush="{TemplateBinding BorderBrush}" 
+                                        BorderThickness="{TemplateBinding BorderThickness}" 
+                                        SnapsToDevicePixels="true" />
+                                    <Border 
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                        Padding="{TemplateBinding Padding}">
+                                        <Border x:Name="CollectedBorder" Background="White" Height="16" Width="16">
+                                            <Border.OpacityMask>
+                                                <ImageBrush x:Name="CollectedBrush" ImageSource="pack://application:,,,/Resources/Icons/Collected2.png"></ImageBrush>
+                                            </Border.OpacityMask>
+                                        </Border>
+                                    </Border>
+                                </SimplePanel>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsChecked" Value="False">
+                                        <Setter TargetName="CollectedBorder" Property="OpacityMask">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="pack://application:,,,/Resources/Icons/Collected1.png"></ImageBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BackgroundBorder" Property="Opacity" Value="{StaticResource Basics.Opacity.MouseOver}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="BackgroundBorder" Property="Opacity" Value="{StaticResource Basics.Opacity.Pressed}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="MainPanel" Property="Opacity" Value="{StaticResource Basics.Opacity.Disabled }"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </ToggleButton.Template>
+                    </ToggleButton>
+                </StackPanel>
+                <Border Height="80" Width="80" Visibility="{Binding Path=LoadingVisibility}">
+                    <CircularLoading Foreground="White"></CircularLoading>
+                </Border>
+            </SimplePanel>
+            <ControlTemplate.Triggers>
+                <Trigger SourceName="MainPanel" Property="IsMouseOver" Value="True">
+                    <Setter TargetName="ButtonPanel" Property="Visibility" Value="Visible"></Setter>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetName="CardImage">
+                                <DoubleAnimationUsingKeyFrames
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
+                                    BeginTime="00:00:00">
+                                    <EasingDoubleKeyFrame KeyTime="{StaticResource KeyTime.MouseOver}" Value="{StaticResource ScaleSize}"/>
+                                </DoubleAnimationUsingKeyFrames>
+                                <DoubleAnimationUsingKeyFrames  
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
+                                    BeginTime="00:00:00">
+                                    <EasingDoubleKeyFrame KeyTime="{StaticResource KeyTime.MouseOver}" Value="{StaticResource ScaleSize}"/>
+                                </DoubleAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetName="CardImage">
+                                <DoubleAnimationUsingKeyFrames
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
+                                    BeginTime="00:00:00">
+                                    <EasingDoubleKeyFrame KeyTime="{StaticResource KeyTime.MouseOver}" Value="1"/>
+                                </DoubleAnimationUsingKeyFrames>
+                                <DoubleAnimationUsingKeyFrames  
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
+                                    BeginTime="00:00:00">
+                                    <EasingDoubleKeyFrame KeyTime="{StaticResource KeyTime.MouseOver}" Value="1"/>
+                                </DoubleAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </UserControl.Template>
+</UserControl>
