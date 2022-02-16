@@ -9,20 +9,20 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace WindowsFocusConsole
+namespace WindowsFocusBasics
 {
     public class WindowsFocusHandler : IDisposable
     {
         private readonly IReadOnlyList<ImageFormat> _RawFormats;
         private bool _Handling;
         private readonly ILogger _Logger;
-            
+
         public WindowsFocusHandler()
         {
             _Logger = LogManager.GetCurrentClassLogger();
             _RawFormats = GetImageFormats();
         }
-        
+
         public async void Handle()
         {
             if (_Handling) return;
@@ -53,8 +53,12 @@ namespace WindowsFocusConsole
                                 var format = _RawFormats.SingleOrDefault(p => p.Equals(image.RawFormat));
                                 if (null != format)
                                 {
+                                    var sizeFormat = $"{image.Size.Width} x {image.Size.Height}";
                                     var fileName = Path.GetFileName(file + "." + format);
-                                    var filePath = Path.Combine(This.WindowsFocusSaveDirectory, fileName);
+                                    var filePath = Path.Combine(
+                                        This.WindowsFocusSaveDirectory,
+                                        sizeFormat,
+                                        fileName);
 
                                     if (!File.Exists(filePath))
                                     {

@@ -20,13 +20,20 @@ namespace WindowsFocusViewer.ViewModels
         private ObservableDictionary<string,string> _DirectoryDictionary;
         private ObservableDictionary<double, ImageSource> _ViewCategoryDictionary;
         private readonly string[] _ImageFiles;
-        private ObservableDictionary<ShowCategroy, string> _CategoryDictionary;
-        private ShowCategroy _ShowCategroy;
+        private ObservableDictionary<ShowCategory, string> _CategoryDictionary;
+        private ShowCategory _ShowCategory;
         private Paginator _Paginator;
+        private int _SelectedViewCategoryIndex;
 
         public PagingHandler Paging { get; }
 
-        public ObservableDictionary<ShowCategroy,string> CategoryDictionary
+        public int SelectedViewCategoryIndex
+        {
+            get => _SelectedViewCategoryIndex;
+            set => this.SetValue(ref _SelectedViewCategoryIndex, value);
+        }
+
+        public ObservableDictionary<ShowCategory,string> CategoryDictionary
         {
             get => _CategoryDictionary;
             set => this.SetValue(ref _CategoryDictionary, value);
@@ -54,42 +61,61 @@ namespace WindowsFocusViewer.ViewModels
 
         public ICommand SelectedViewCategoryCommand { get; }
 
-        public ICommand SelectedShowCategroyCommand { get; }
+        public ICommand SelectedShowCategoryCommand { get; }
 
         public MainViewModel()
         {
-            _ImageFiles = new DirectoryInfo(This.WindowsFocusSaveDirectory)
-                .GetFiles()
-                .OrderByDescending(p=>p.CreationTime)
-                .Where(p => !p.Name.Contains(nameof(This.MyCollected)))
-                .Select(p=>p.FullName)
-                .ToArray();
+            _ImageFiles = GetImageFiles(This.WindowsFocusSaveDirectory);
             CategoryDictionary = GetCategoryDictionary();
             ViewCategoryDictionary = GetViewCategoryDictionary();
-            Paging= new PagingHandler(OnPaging);
+            Paging = new PagingHandler(OnPaging);
             LoadedCommand = new DelegateCommand<Paginator>(LoadedCommandExecuteMethod);
             SelectedViewCategoryCommand = new DelegateCommand<double?>(SelectedViewCategoryCommandExecuteMethod);
-            SelectedShowCategroyCommand = new DelegateCommand<ShowCategroy?>(SelectedShowCategroyCommandExecuteMethod);
+            SelectedShowCategoryCommand = new DelegateCommand<ShowCategory?>(SelectedShowCategoryCommandExecuteMethod);
+
+            CardViewModel.CardHeight = ViewCategoryDictionary.Last().Key;
+            SelectedViewCategoryIndex = ViewCategoryDictionary.Count - 1;
         }
 
-        private void SelectedShowCategroyCommandExecuteMethod(ShowCategroy? categroy)
+        private string[] GetImageFiles(string directoryPath)
+        {
+            return GetFiles(directoryPath)
+                .OrderByDescending(p => p.CreationTime)
+                .Where(p => !p.Name.Contains(nameof(This.MyCollected)))
+                .Select(p => p.FullName)
+                .ToArray();
+        }
+
+        private FileInfo[] GetFiles(string directoryPath)
+        {
+            var directoryInfo1 = new DirectoryInfo(directoryPath);
+            var files = new List<FileInfo>();
+            files.AddRange(directoryInfo1.GetFiles());
+            foreach (var directoryInfo2 in directoryInfo1.GetDirectories())
+            {
+                files.AddRange(GetFiles(directoryInfo2.FullName));
+            }
+            return files.ToArray();
+        }
+
+        private void SelectedShowCategoryCommandExecuteMethod(ShowCategory? categroy)
         {
             if (null == categroy)
                 throw new NotImplementedException();
-            _ShowCategroy = categroy.Value;
+            _ShowCategory = categroy.Value;
             _Paginator.PageIndex = 1;
-            PaginatorCommands.GotoPage.Execute(null, _Paginator);
+            PaginatorCommands.GotoPage.Execute(1, _Paginator);
         }
 
         private async Task<IPagingResult> OnPaging(int pageindex, int pagesize)
         {
             var list = default(IList<string>);
-            switch (_ShowCategroy)
+            switch (_ShowCategory)
             {
-                case ShowCategroy.All:
+                case ShowCategory.All:
                     list = _ImageFiles;
                     break;
-                case ShowCategroy.MyCollected:
+                case ShowCategory.MyCollected:
                     list = This.MyCollected;
                     break;
                 default:
@@ -126,8 +152,6 @@ namespace WindowsFocusViewer.ViewModels
             if(null == paginator)
                 throw new NotImplementedException();
             _Paginator = paginator;
-            //_Paginator.PageIndex = 1;
-            //PaginatorCommands.GotoPage.Execute(null, _Paginator);
         }
 
         private ObservableDictionary<double, ImageSource> GetViewCategoryDictionary()
@@ -136,7 +160,7 @@ namespace WindowsFocusViewer.ViewModels
             var dictionary = new Dictionary<double, ImageSource>();
             for (int i = 3; i > 0; i--)
             {
-                var key = i * 100;
+                var key = i * 150 + 100;
                 var filePath = Path.Combine(directory, $"View{i}.png");
                 var source = File.OpenRead(filePath).Create();
                 dictionary.Add(key, source);
@@ -145,12 +169,12 @@ namespace WindowsFocusViewer.ViewModels
             return new ObservableDictionary<double, ImageSource>(dictionary);
         }
 
-        private ObservableDictionary<ShowCategroy, string> GetCategoryDictionary()
+        private ObservableDictionary<ShowCategory, string> GetCategoryDictionary()
         {
-            var dic = new Dictionary<ShowCategroy, string>();
-            dic.Add(ShowCategroy.All,"全部");
-            dic.Add(ShowCategroy.MyCollected,"我的收藏");
-            return new ObservableDictionary<ShowCategroy, string>(dic);
+            var dic = new Dictionary<ShowCategory, string>();
+            dic.Add(ShowCategory.All,"全部");
+            dic.Add(ShowCategory.MyCollected,"我的收藏");
+            return new ObservableDictionary<ShowCategory, string>(dic);
         }
     }
 }

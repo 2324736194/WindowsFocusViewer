@@ -55,7 +55,7 @@ namespace System
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     @"Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets");
             WindowsFocusSaveDirectory =
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                     Name);
             if (!Directory.Exists(WindowsFocusSaveDirectory))
                 Directory.CreateDirectory(WindowsFocusSaveDirectory);

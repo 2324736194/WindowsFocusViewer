@@ -1,6 +1,6 @@
 ﻿namespace WindowsFocusViewer
 {
-    public enum ShowCategroy
+    public enum ShowCategory
     {
         /// <summary>
         /// 全部

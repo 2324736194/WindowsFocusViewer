@@ -8,6 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using NLog;
 
+using WindowsFocusBasics;
+
 namespace WindowsFocusConsole
 {
     class Program

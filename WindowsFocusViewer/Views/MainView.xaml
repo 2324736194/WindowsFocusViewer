@@ -43,7 +43,7 @@
                             <b:EventTrigger EventName="{Binding Source={x:Static TabControl.SelectionChangedEvent},Path=Name}">
                                 <b:InvokeCommandAction
                                     CommandParameter="{Binding ElementName=CategoryTabControl,Path=SelectedValue}"
-                                    Command="{Binding Path=SelectedShowCategroyCommand}"></b:InvokeCommandAction>
+                                    Command="{Binding Path=SelectedShowCategoryCommand}"></b:InvokeCommandAction>
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </TabControl>
@@ -55,7 +55,7 @@
                         ItemsSource="{Binding Path=ViewCategoryDictionary}"
                         SelectedValuePath="Key"
                         Template="{StaticResource ControlTemplate.TabControl}"
-                        SelectedIndex="1">
+                        SelectedIndex="{Binding Path=SelectedViewCategoryIndex}">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="{Binding Source={x:Static TabControl.SelectionChangedEvent},Path=Name}">
                                 <b:InvokeCommandAction
