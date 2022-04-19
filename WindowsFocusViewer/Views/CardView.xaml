@@ -45,7 +45,7 @@
                 </Border>
                 <Border BorderThickness="2" BorderBrush="White" CornerRadius="5"/>
                 <StackPanel 
-                    x:Name="ButtonPanel" HorizontalAlignment="Right" Visibility="Collapsed"
+                    x:Name="ButtonPanel" HorizontalAlignment="Right" Visibility="Visible"
                     Margin="10" Orientation="Horizontal" VerticalAlignment="Top">
                     <Button 
                         ToolTip="保存" Padding="5" Style="{StaticResource Controls.Button.Semicircle.Theme}">
@@ -115,7 +115,7 @@
                 </Border>
             </SimplePanel>
             <ControlTemplate.Triggers>
-                <Trigger SourceName="MainPanel" Property="IsMouseOver" Value="True">
+                <Trigger SourceName="MainPanel" Property="IsMouseOver" Value="False">
                     <Setter TargetName="ButtonPanel" Property="Visibility" Value="Visible"></Setter>
                     <Trigger.EnterActions>
                         <BeginStoryboard>
